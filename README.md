@@ -193,6 +193,7 @@ rosrun forklift_drive forklift_drive
   <node name="forklift_drive_node" pkg="forklift_drive" type="forklift_drive" output="screen">
     <param name="port" value="/dev/ttyUSB0" />
     <param name="baudrate" value="115200" />
+    <param name="loopRate" value="40" type="int" />
   </node>
 </launch>
 ```
