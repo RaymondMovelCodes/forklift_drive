@@ -1,0 +1,5 @@
+# client request cmd
+int8 chargingStatus      # 1:charging ok; 2:charging fail; 0:no charging
+---
+# Service Response status
+bool result   

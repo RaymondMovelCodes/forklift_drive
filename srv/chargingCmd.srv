@@ -1,0 +1,5 @@
+# client request cmd
+int8 chargingCmd      # 1:start charge; 2:end charge; 0:emergency power outage
+---
+# Service Response status
+bool result   
