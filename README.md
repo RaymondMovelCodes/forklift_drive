@@ -1,8 +1,9 @@
 # forklift_drive ROS Package
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/raymond-robotics/forklift_drive)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](https://github.com/RaymondMovelCodes/forklift_drive)
 [![ROS](https://img.shields.io/badge/ROS-Melodic%20%7C%20Noetic-green.svg)](http://wiki.ros.org/)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-RaymondMovelCodes-blue.svg)](https://github.com/RaymondMovelCodes/forklift_drive)
 
 ---
 
@@ -43,10 +44,12 @@
 - 🔋 充电系统管理
 - 📡 传感器数据采集（超声波雷达、激光雷达、碰撞传感器等）
 - 🎵 MP3音频播放控制
-- 🔌 串口通信
+- 🔌 串口通信与热插拔支持
 - 🛡️ 智能避障功能（激光雷达+超声波雷达多重保护）
 - 🔧 翼板电机控制（自动开合货物挡板）
 - ⚠️ 警示灯控制（多种工作状态指示）
+- 🔥 **新增**: 串口热插拔功能，支持设备断开自动重连
+- ⚙️ **新增**: 可配置的循环频率控制
 
 ## 系统要求
 
@@ -67,8 +70,7 @@
 
 ```bash
 cd ~/catkin_ws/src
-sudo chmod 777 -R forklift_drive.rar
-unrar forklift_drive
+git clone https://github.com/RaymondMovelCodes/forklift_drive.git
 ```
 
 ### 2. 安装依赖
@@ -97,8 +99,9 @@ source ~/catkin_ws/devel/setup.bash
 
 - **节点名称**: `forklift_drive_node`
 - **可执行文件**: `forklift_drive`
-- **运行频率**: 20Hz
+- **运行频率**: 40Hz (可配置)
 - **功能**: 叉车硬件接口驱动，负责串口通信和数据转换
+- **热插拔支持**: 自动检测串口断开并重连
 
 ## ROS主题
 
@@ -106,7 +109,7 @@ source ~/catkin_ws/devel/setup.bash
 
 | 主题名称 | 消息类型 | 频率 | 描述 |
 |---------|---------|------|------|
-| `forklift_drive_publisher` | `forklift_drive/modbus_server` | 20Hz | 发布叉车状态信息（传感器数据、电机状态、电池信息等） |
+| `forklift_drive_publisher` | `forklift_drive/modbus_server` | 40Hz | 发布叉车状态信息（传感器数据、电机状态、电池信息等） |
 
 ### 订阅的主题 (Subscribed Topics)
 
@@ -184,19 +187,37 @@ roslaunch forklift_drive forklift_drive.launch
 rosrun forklift_drive forklift_drive
 ```
 
-### 2. 配置串口参数
+### 2. 配置参数
 
-在launch文件中设置串口参数：
+在launch文件中设置参数：
 
 ```xml
 <launch>
   <node name="forklift_drive_node" pkg="forklift_drive" type="forklift_drive" output="screen">
-    <param name="port" value="/dev/ttyUSB0" />
-    <param name="baudrate" value="115200" />
+    <!-- 串口配置参数 -->
+    <param name="port" value="/dev/ttyUSB0" type="str" />
+    <param name="baudrate" value="115200" type="int" />
+    <!-- 循环频率配置 -->
     <param name="loopRate" value="40" type="int" />
   </node>
 </launch>
 ```
+
+### 3. 热插拔功能
+
+系统支持串口热插拔功能：
+- **自动检测**: 实时监控串口连接状态
+- **自动重连**: 设备断开后每2秒尝试重连
+- **无需重启**: 设备重新插入后自动恢复通信
+- **状态提示**: 详细的连接状态日志输出
+
+### 4. 参数配置说明
+
+| 参数名 | 类型 | 默认值 | 描述 |
+|--------|------|--------|------|
+| `port` | string | `/dev/ttyUSB0` | 串口设备路径 |
+| `baudrate` | int | `115200` | 串口波特率 |
+| `loopRate` | int | `40` | 主循环频率(Hz) |
 
 ## ROS命令示例
 
@@ -311,10 +332,12 @@ rostopic echo /rosout | grep forklift_drive
 - 🔋 Charging system management
 - 📡 Sensor data acquisition (ultrasonic radar, lidar, collision sensors, etc.)
 - 🎵 MP3 audio playback control
-- 🔌 Modbus serial communication
+- 🔌 Serial communication with hot-plug support
 - 🛡️ Intelligent obstacle avoidance (LiDAR + ultrasonic radar multi-layer protection)
 - 🔧 Wings motor control (automatic cargo baffle opening/closing)
 - ⚠️ Warning light control (multiple working status indication)
+- 🔥 **New**: Serial hot-plug functionality with automatic reconnection
+- ⚙️ **New**: Configurable loop rate control
 
 ## System Requirements
 
@@ -335,7 +358,7 @@ rostopic echo /rosout | grep forklift_drive
 
 ```bash
 cd ~/catkin_ws/src
-git clone <repository_url> forklift_drive
+git clone https://github.com/RaymondMovelCodes/forklift_drive.git
 ```
 
 ### 2. Install dependencies
@@ -366,8 +389,9 @@ source ~/catkin_ws/devel/setup.bash
 
 - **Node Name**: `forklift_drive_node`
 - **Executable**: `forklift_drive`
-- **Running Frequency**: 20Hz
+- **Running Frequency**: 40Hz (configurable)
 - **Function**: Forklift hardware interface driver, responsible for serial communication and data conversion
+- **Hot-plug Support**: Automatic detection and reconnection of serial port disconnections
 
 ## ROS Topics
 
@@ -375,7 +399,7 @@ source ~/catkin_ws/devel/setup.bash
 
 | Topic Name | Message Type | Frequency | Description |
 |-----------|-------------|-----------|-------------|
-| `forklift_drive_publisher` | `forklift_drive/modbus_server` | 20Hz | Publishes forklift status information (sensor data, motor status, battery info, etc.) |
+| `forklift_drive_publisher` | `forklift_drive/modbus_server` | Configurable (default 40Hz) | Publishes forklift status information (sensor data, motor status, battery info, etc.) |
 
 ### Subscribed Topics
 
@@ -443,27 +467,55 @@ rosmsg show forklift_drive/modbus_server
 
 ## Usage
 
-### 1. Launch Node
+### Basic Launch
 
 ```bash
-# Launch using launch file
 roslaunch forklift_drive forklift_drive.launch
-
-# Or run node directly
-rosrun forklift_drive forklift_drive
 ```
 
-### 2. Configure Serial Parameters
+### Parameter Configuration
 
-Set serial parameters in launch file:
+The node supports the following configurable parameters:
 
-```xml
-<launch>
-  <node name="forklift_drive_node" pkg="forklift_drive" type="forklift_drive" output="screen">
-    <param name="port" value="/dev/ttyUSB0" />
-    <param name="baudrate" value="115200" />
-  </node>
-</launch>
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `port` | string | `/dev/ttyUSB0` | Serial port device path |
+| `baudrate` | int | `115200` | Serial communication baud rate |
+| `loopRate` | int | `40` | Main loop frequency in Hz |
+
+### Custom Parameter Launch
+
+```bash
+# Custom serial port and baud rate
+roslaunch forklift_drive forklift_drive.launch port:=/dev/ttyUSB1 baudrate:=9600
+
+# Custom loop rate
+roslaunch forklift_drive forklift_drive.launch loopRate:=50
+
+# Multiple parameters
+roslaunch forklift_drive forklift_drive.launch port:=/dev/ttyACM0 baudrate:=57600 loopRate:=30
+```
+
+### Hot-plug Feature
+
+The package includes automatic serial port hot-plug detection and reconnection:
+
+- **Automatic Detection**: Monitors the configured serial port for disconnections
+- **Auto Reconnection**: Attempts to reconnect every 2 seconds when disconnected
+- **Robust Operation**: Continues operation without crashing when serial port is unplugged
+- **Status Logging**: Provides detailed connection status information in ROS logs
+
+**Hot-plug Behavior:**
+1. When serial port is disconnected, the node detects it and logs a warning
+2. Node continues running and attempts reconnection every 2 seconds
+3. When the serial device is reconnected, automatic reconnection occurs
+4. Normal operation resumes immediately after successful reconnection
+
+### Direct Node Execution
+
+```bash
+# Or run node directly
+rosrun forklift_drive forklift_drive
 ```
 
 ## ROS Command Examples
